@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CVEs — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html" class="active"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">CVE Findings</div>
+      <div class="topbar-right">
+        <a href="new-scan.html" class="topbar-btn primary">+ New Scan</a>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="metrics-grid" style="margin-bottom:28px;">
+        <div class="metric-card"><div class="metric-label">Total CVEs</div><div class="metric-value">17</div></div>
+        <div class="metric-card"><div class="metric-label">Critical</div><div class="metric-value danger">4</div></div>
+        <div class="metric-card"><div class="metric-label">High</div><div class="metric-value warn">6</div></div>
+        <div class="metric-card"><div class="metric-label">Medium</div><div class="metric-value info">5</div></div>
+        <div class="metric-card"><div class="metric-label">Low</div><div class="metric-value ok">2</div></div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Search CVE ID or description..." onkeyup="filterTable()" />
+        <select id="sevFilter" onchange="filterTable()">
+          <option value="">All Severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="serviceFilter" onchange="filterTable()">
+          <option value="">All Services</option>
+          <option value="http">HTTP</option>
+          <option value="https">HTTPS</option>
+          <option value="ssh">SSH</option>
+          <option value="mysql">MySQL</option>
+          <option value="dns">DNS</option>
+          <option value="http-alt">HTTP-Alt</option>
+        </select>
+      </div>
+
+      <section class="section">
+        <table class="data-table" id="cveTable">
+          <thead>
+            <tr><th>CVE ID</th><th>Severity</th><th>Score</th><th>Service</th><th>Port</th><th>Description</th></tr>
+          </thead>
+          <tbody id="cveBody">
+            <tr><td><span class="cve-id">CVE-2021-41773</span></td><td><span class="badge danger">critical</span></td><td><span class="score danger">9.8</span></td><td>HTTP</td><td class="muted">80</td><td class="desc">Path traversal and RCE in Apache HTTP Server 2.4.49</td></tr>
+            <tr><td><span class="cve-id">CVE-2021-42013</span></td><td><span class="badge danger">critical</span></td><td><span class="score danger">9.8</span></td><td>HTTP</td><td class="muted">80</td><td class="desc">Further path traversal bypass in Apache 2.4.49 and 2.4.50</td></tr>
+            <tr><td><span class="cve-id">CVE-2022-22965</span></td><td><span class="badge danger">critical</span></td><td><span class="score danger">9.8</span></td><td>HTTP-Alt</td><td class="muted">8080</td><td class="desc">Spring4Shell — RCE vulnerability in Spring Framework</td></tr>
+            <tr><td><span class="cve-id">CVE-2021-44228</span></td><td><span class="badge danger">critical</span></td><td><span class="score danger">10.0</span></td><td>HTTP-Alt</td><td class="muted">8080</td><td class="desc">Log4Shell — RCE via JNDI lookup in Apache Log4j2</td></tr>
+            <tr><td><span class="cve-id">CVE-2020-14750</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">9.8</span></td><td>HTTP-Alt</td><td class="muted">8080</td><td class="desc">Remote code execution vulnerability in Oracle WebLogic</td></tr>
+            <tr><td><span class="cve-id">CVE-2022-0778</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">7.5</span></td><td>HTTPS</td><td class="muted">443</td><td class="desc">Infinite loop in BN_mod_sqrt() in OpenSSL causes DoS</td></tr>
+            <tr><td><span class="cve-id">CVE-2018-15473</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">5.3</span></td><td>SSH</td><td class="muted">22</td><td class="desc">OpenSSH username enumeration via timing attack</td></tr>
+            <tr><td><span class="cve-id">CVE-2016-6662</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">9.8</span></td><td>MySQL</td><td class="muted">3306</td><td class="desc">MySQL allows remote attackers to execute arbitrary code</td></tr>
+            <tr><td><span class="cve-id">CVE-2019-12749</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">7.1</span></td><td>MySQL</td><td class="muted">3306</td><td class="desc">DBus authentication bypass allows local privilege escalation</td></tr>
+            <tr><td><span class="cve-id">CVE-2020-8617</span></td><td><span class="badge warn">high</span></td><td><span class="score warn">7.5</span></td><td>DNS</td><td class="muted">53</td><td class="desc">BIND assertion failure leads to denial of service</td></tr>
+            <tr><td><span class="cve-id">CVE-2021-25217</span></td><td><span class="badge info-badge">medium</span></td><td><span class="score info">6.7</span></td><td>DNS</td><td class="muted">53</td><td class="desc">Buffer overflow in ISC DHCP lease file parsing</td></tr>
+            <tr><td><span class="cve-id">CVE-2022-23308</span></td><td><span class="badge info-badge">medium</span></td><td><span class="score info">5.9</span></td><td>HTTPS</td><td class="muted">443</td><td class="desc">Use-after-free in libxml2 via crafted XML document</td></tr>
+            <tr><td><span class="cve-id">CVE-2021-3711</span></td><td><span class="badge info-badge">medium</span></td><td><span class="score info">9.8</span></td><td>SSH</td><td class="muted">22</td><td class="desc">SM2 decryption buffer overflow in OpenSSL</td></tr>
+            <tr><td><span class="cve-id">CVE-2020-15180</span></td><td><span class="badge info-badge">medium</span></td><td><span class="score info">9.0</span></td><td>MySQL</td><td class="muted">3306</td><td class="desc">MariaDB Galera allows privilege escalation via wsrep</td></tr>
+            <tr><td><span class="cve-id">CVE-2022-32207</span></td><td><span class="badge info-badge">medium</span></td><td><span class="score info">9.8</span></td><td>HTTP</td><td class="muted">80</td><td class="desc">curl insufficient check for permissions when saving cookies</td></tr>
+            <tr><td><span class="cve-id">CVE-2021-3520</span></td><td><span class="badge ok-badge">low</span></td><td><span class="score ok">3.3</span></td><td>MySQL</td><td class="muted">3306</td><td class="desc">Memory corruption in lz4 before 1.9.3 via crafted input</td></tr>
+            <tr><td><span class="cve-id">CVE-2019-20838</span></td><td><span class="badge ok-badge">low</span></td><td><span class="score ok">2.5</span></td><td>HTTP</td><td class="muted">80</td><td class="desc">Buffer over-read in libpcre before 8.43 via crafted regex</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    function filterTable() {
+      const search  = document.getElementById('searchInput').value.toLowerCase();
+      const sev     = document.getElementById('sevFilter').value.toLowerCase();
+      const service = document.getElementById('serviceFilter').value.toLowerCase();
+      document.querySelectorAll('#cveBody tr').forEach(row => {
+        const cveId  = row.cells[0].textContent.toLowerCase();
+        const rowSev = row.cells[1].textContent.toLowerCase();
+        const rowSvc = row.cells[3].textContent.toLowerCase();
+        const desc   = row.cells[5].textContent.toLowerCase();
+        const matchSearch  = cveId.includes(search) || desc.includes(search);
+        const matchSev     = sev     === '' || rowSev.includes(sev);
+        const matchService = service === '' || rowSvc.includes(service);
+        row.style.display = (matchSearch && matchSev && matchService) ? '' : 'none';
+      });
+    }
+  </script>
+<script src="auth.js"></script>
+</body>
+</html>

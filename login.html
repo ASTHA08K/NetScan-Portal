@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="display:flex; align-items:center; justify-content:center; min-height:100vh; background:#0a0e1a; margin:0;">
+
+  <div class="login-card">
+
+    <div class="login-brand">// <span>NetScan</span> Portal</div>
+    <div class="login-sub">Security Scanning Dashboard — v2.0.0</div>
+
+    <!-- STATUS MESSAGE -->
+    <div id="login-msg" style="display:none; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+
+    <!-- FORM -->
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" id="username" class="form-input" placeholder="admin"
+        onkeydown="if(event.key==='Enter') login()" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="password" class="form-input" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') login()" />
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#718096; cursor:pointer;">
+        <input type="checkbox" id="remember" style="accent-color:#63b3ed;" />
+        Remember me
+      </label>
+      <span style="font-size:13px; color:#63b3ed;">Forgot password?</span>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="login()">Sign In →</button>
+
+    <div class="login-footer" style="margin-top:16px;">
+      Demo credentials: <span style="color:#63b3ed;">admin</span> /
+      <span style="color:#63b3ed;">admin123</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin:20px 0;">
+      <div style="flex:1; height:1px; background:#1e2535;"></div>
+      <span style="font-size:11px; color:#2d3748;">OR</span>
+      <div style="flex:1; height:1px; background:#1e2535;"></div>
+    </div>
+
+    <button class="topbar-btn" style="width:100%; padding:10px; text-align:center;"
+      onclick="guestLogin()">
+      Continue as Guest →
+    </button>
+
+    <!-- SERVER STATUS -->
+    <div style="text-align:center; margin-top:16px;">
+      <span id="server-dot" style="font-size:11px; color:#2d3748;">⬤ checking server...</span>
+    </div>
+
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    // Check server on load
+    window.onload = async () => {
+      try {
+        const res = await fetch(`${API}/api/scans`);
+        if (res.ok) {
+          document.getElementById('server-dot').style.color = '#68d391';
+          document.getElementById('server-dot').textContent = '⬤ server online';
+        }
+      } catch {
+        document.getElementById('server-dot').style.color = '#fc8181';
+        document.getElementById('server-dot').textContent = '⬤ server offline — start node server.js';
+      }
+
+      // Auto redirect if already logged in
+      const token = localStorage.getItem('token');
+      if (token) window.location.href = 'index.html';
+    };
+
+    function showMsg(text, type) {
+      const msg = document.getElementById('login-msg');
+      msg.style.display = 'block';
+      msg.textContent = text;
+      if (type === 'error') {
+        msg.style.background = '#2d1b1b';
+        msg.style.border = '1px solid #fc8181';
+        msg.style.color = '#fc8181';
+      } else {
+        msg.style.background = '#1a2d1e';
+        msg.style.border = '1px solid #68d391';
+        msg.style.color = '#68d391';
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const btn      = document.getElementById('loginBtn');
+
+      if (!username || !password) {
+        showMsg('❌ Please enter username and password', 'error');
+        return;
+      }
+
+      // Animate button
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Save JWT token
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', data.username);
+          localStorage.setItem('role', data.role);
+
+          showMsg('✅ Login successful! Redirecting...', 'success');
+
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 800);
+
+        } else {
+          showMsg('❌ ' + (data.error || 'Invalid credentials'), 'error');
+          btn.textContent = 'Sign In →';
+          btn.disabled = false;
+          document.getElementById('password').value = '';
+        }
+
+      } catch {
+        showMsg('❌ Server offline — start node server.js first!', 'error');
+        btn.textContent = 'Sign In →';
+        btn.disabled = false;
+      }
+    }
+
+    function guestLogin() {
+      localStorage.setItem('token', 'guest');
+      localStorage.setItem('user', 'guest');
+      localStorage.setItem('role', 'guest');
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>

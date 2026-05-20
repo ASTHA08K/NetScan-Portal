@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html" class="active"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Reports</div>
+      <div class="topbar-right">
+        <button class="topbar-btn primary" onclick="generateReport()">+ Generate Report</button>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- SUMMARY -->
+      <div class="metrics-grid" style="margin-bottom:28px;">
+        <div class="metric-card">
+          <div class="metric-label">Total Reports</div>
+          <div class="metric-value">6</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">This Month</div>
+          <div class="metric-value info">4</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Auto Generated</div>
+          <div class="metric-value ok">3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Manual</div>
+          <div class="metric-value">3</div>
+        </div>
+      </div>
+
+      <!-- GENERATE REPORT FORM -->
+      <div class="form-card" style="margin-bottom:28px;" id="gen-form" style="display:none;">
+        <div class="settings-section-title">Generate New Report</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Report Type</label>
+            <select class="form-input" id="reportType">
+              <option>Full Vulnerability Report</option>
+              <option>Executive Summary</option>
+              <option>Port Exposure Report</option>
+              <option>CVE Risk Report</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target</label>
+            <select class="form-input" id="reportTarget">
+              <option>All Targets</option>
+              <option>192.168.1.1</option>
+              <option>10.0.0.5</option>
+              <option>172.16.0.10</option>
+              <option>10.232.221.84</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Format</label>
+            <select class="form-input" id="reportFormat">
+              <option>PDF</option>
+              <option>CSV</option>
+              <option>JSON</option>
+            </select>
+          </div>
+        </div>
+        <button class="submit-btn" style="max-width:200px;" onclick="createReport()">Generate →</button>
+      </div>
+
+      <!-- REPORTS LIST -->
+      <section class="section">
+        <div class="section-row">
+          <span class="section-title">All Reports</span>
+        </div>
+
+        <div id="reports-list">
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">📄 Full Vulnerability Report — All Targets</div>
+              <div class="report-meta">Generated Apr 27, 2026 · PDF · 2.4 MB · <span class="badge danger" style="font-size:10px;">47 vulns</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('full')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">📊 Executive Summary — April 2026</div>
+              <div class="report-meta">Generated Apr 25, 2026 · PDF · 0.8 MB · <span class="badge warn" style="font-size:10px;">high risk</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('exec')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">🔌 Port Exposure Report — 192.168.1.1</div>
+              <div class="report-meta">Generated Apr 24, 2026 · CSV · 0.1 MB · <span class="badge info" style="font-size:10px;">5 open ports</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('port')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">⚠ CVE Risk Report — 10.0.0.5</div>
+              <div class="report-meta">Generated Apr 22, 2026 · PDF · 1.2 MB · <span class="badge danger" style="font-size:10px;">9 CVEs</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('cve')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">📄 Full Vulnerability Report — 172.16.0.10</div>
+              <div class="report-meta">Generated Apr 20, 2026 · JSON · 0.3 MB · <span class="badge ok" style="font-size:10px;">2 vulns</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('full')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-info">
+              <div class="report-title">📊 Executive Summary — March 2026</div>
+              <div class="report-meta">Generated Mar 31, 2026 · PDF · 0.7 MB · <span class="badge ok" style="font-size:10px;">low risk</span></div>
+            </div>
+            <div class="report-actions">
+              <button class="icon-btn" onclick="previewReport('exec')">Preview</button>
+              <button class="icon-btn" onclick="downloadReport()">Download</button>
+              <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PREVIEW PANEL -->
+      <div id="preview-panel" style="display:none;" class="form-card">
+        <div class="settings-section-title" style="display:flex;justify-content:space-between;">
+          <span id="preview-title">Report Preview</span>
+          <button class="icon-btn" onclick="closePreview()">✕ Close</button>
+        </div>
+        <div id="preview-content" style="font-size:13px;color:#718096;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    function generateReport() {
+      const form = document.getElementById('gen-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function createReport() {
+      const type   = document.getElementById('reportType').value;
+      const target = document.getElementById('reportTarget').value;
+      const format = document.getElementById('reportFormat').value;
+
+      const newCard = document.createElement('div');
+      newCard.className = 'report-card';
+      newCard.innerHTML = `
+        <div class="report-info">
+          <div class="report-title">📄 ${type} — ${target}</div>
+          <div class="report-meta">Generated just now · ${format} · <span class="badge ok" style="font-size:10px;">new</span></div>
+        </div>
+        <div class="report-actions">
+          <button class="icon-btn">Preview</button>
+          <button class="icon-btn">Download</button>
+          <button class="icon-btn" style="color:#fc8181;border-color:#2d1b1b;" onclick="deleteReport(this)">Delete</button>
+        </div>`;
+
+      document.getElementById('reports-list').prepend(newCard);
+      document.getElementById('gen-form').style.display = 'none';
+      alert(`✅ ${type} generated successfully!`);
+    }
+
+    function deleteReport(btn) {
+      if (confirm('Delete this report?')) {
+        btn.closest('.report-card').remove();
+      }
+    }
+
+    function downloadReport() {
+      alert('📥 In a real system this would download the report file.\nConnect a backend to enable real downloads!');
+    }
+
+    const previews = {
+      full: `NETSCAN — FULL VULNERABILITY REPORT
+=====================================
+Generated: April 27, 2026
+Targets Scanned: 5
+Total Ports: 3,480
+Open Ports: 24
+Total Vulnerabilities: 47
+
+CRITICAL FINDINGS:
+------------------
+[CRITICAL] CVE-2021-44228 — Log4Shell (CVSS 10.0)
+  Target: 172.16.0.10 | Port: 8080 | Service: Tomcat
+  Action: Patch immediately
+
+[CRITICAL] CVE-2021-41773 — Apache RCE (CVSS 9.8)
+  Target: 192.168.1.1 | Port: 80 | Service: Apache
+  Action: Upgrade to Apache 2.4.51+
+
+[CRITICAL] CVE-2022-22965 — Spring4Shell (CVSS 9.8)
+  Target: 172.16.0.10 | Port: 8080
+  Action: Update Spring Framework
+
+RECOMMENDATION:
+Patch all critical CVEs within 24 hours.
+Close unnecessary open ports immediately.`,
+
+      exec: `NETSCAN — EXECUTIVE SUMMARY
+============================
+Period: April 2026
+Risk Level: HIGH ⚠
+
+Key Findings:
+- 4 Critical CVEs detected
+- MySQL database exposed on network
+- Apache server running vulnerable version
+- 24 ports open across 5 targets
+
+Top Priority Actions:
+1. Patch Log4Shell immediately
+2. Close MySQL port 3306
+3. Upgrade Apache to latest version
+4. Review all open ports`,
+
+      port: `NETSCAN — PORT EXPOSURE REPORT
+================================
+Target: 192.168.1.1
+Scan Date: April 24, 2026
+
+PORT  | STATE    | SERVICE | RISK
+------|----------|---------|------
+80    | OPEN     | HTTP    | HIGH
+443   | OPEN     | HTTPS   | MED
+25    | CLOSED   | SMTP    | LOW
+
+Recommendation: Close port 80 or upgrade Apache.`,
+
+      cve: `NETSCAN — CVE RISK REPORT
+==========================
+Target: 10.0.0.5
+Total CVEs: 9
+
+HIGH RISK:
+CVE-2018-15473 | SSH | Score: 5.3
+CVE-2016-6662  | MySQL | Score: 9.8
+CVE-2019-12749 | MySQL | Score: 7.1
+CVE-2020-8617  | DNS | Score: 7.5
+
+Immediate action required on MySQL CVEs.`
+    };
+
+    function previewReport(type) {
+      document.getElementById('preview-panel').style.display = 'block';
+      document.getElementById('preview-title').textContent = 'Report Preview';
+      document.getElementById('preview-content').textContent = previews[type] || 'Preview not available.';
+      document.getElementById('preview-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closePreview() {
+      document.getElementById('preview-panel').style.display = 'none';
+    }
+  </script>
+<script src="auth.js"></script>
+</body>
+</html>

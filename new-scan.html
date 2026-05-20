@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Scan — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html" class="active"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">New Scan</div>
+      <div class="topbar-right">
+        <span id="server-status" class="badge info">⬤ checking server...</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="form-layout">
+
+        <!-- LEFT: FORM -->
+        <div class="form-card">
+          <div class="form-group">
+            <label class="form-label">Target IP Address</label>
+            <input type="text" id="target" class="form-input"
+              placeholder="e.g. 192.168.1.1" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Scan Type</label>
+            <select id="scanType" class="form-input" onchange="updateDescription()">
+              <option value="-sV">Service Detection — detect versions</option>
+              <option value="-sV -sC">Full + Scripts — service + CVE scripts</option>
+              <option value="-F">Fast Scan — top 100 ports</option>
+              <option value="-p 1-1024">Common Ports — 1 to 1024</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Scan Speed</label>
+            <div class="speed-options">
+              <label class="speed-btn"><input type="radio" name="speed" value="-T1" /> Slow</label>
+              <label class="speed-btn"><input type="radio" name="speed" value="-T3" checked /> Normal</label>
+              <label class="speed-btn"><input type="radio" name="speed" value="-T4" /> Fast</label>
+              <label class="speed-btn"><input type="radio" name="speed" value="-T5" /> Aggressive</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <textarea id="notes" class="form-input form-textarea"
+              placeholder="Add any notes about this scan..."></textarea>
+          </div>
+
+          <button class="submit-btn" id="scanBtn" onclick="startScan()">
+            Run Scan →
+          </button>
+        </div>
+
+        <!-- RIGHT: INFO PANEL -->
+        <div class="info-panel">
+          <div class="info-card">
+            <div class="info-title">Scan Type Info</div>
+            <p id="scan-description" class="info-text">
+              Detects open ports and identifies running service versions.
+            </p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-title">Recent Targets</div>
+            <div class="recent-list" id="recent-targets">
+              <div class="recent-item" onclick="fillTarget('192.168.1.1')">192.168.1.1</div>
+              <div class="recent-item" onclick="fillTarget('10.0.0.5')">10.0.0.5</div>
+              <div class="recent-item" onclick="fillTarget('10.232.221.84')">10.232.221.84</div>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-title">Tips</div>
+            <ul class="tip-list">
+              <li>Only scan IPs you own or have permission to scan</li>
+              <li>Service Detection finds what's running on each port</li>
+              <li>Fast scan is quicker but may miss some ports</li>
+              <li>Aggressive speed may trigger firewall alerts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div id="scan-progress" class="scan-progress" style="display:none;">
+        <div class="progress-header">
+          <span>Scanning <strong id="progress-target"></strong>...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div id="progress-log" class="progress-log"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="scan-results" style="display:none;">
+        <div class="section-row" style="margin-top:32px;">
+          <span class="section-title">Scan Results</span>
+          <a href="scans.html" class="btn-link">View all scans →</a>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Port</th>
+              <th>Protocol</th>
+              <th>State</th>
+              <th>Service</th>
+              <th>Version</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    const descriptions = {
+      '-sV':        'Detects open ports and identifies running service versions.',
+      '-sV -sC':    'Full scan with scripts — finds versions and runs CVE detection scripts.',
+      '-F':         'Scans only the top 100 most common ports. Very fast.',
+      '-p 1-1024':  'Scans ports 1 through 1024 — covers all well-known services.'
+    };
+
+    // Check server status on load
+    window.onload = async () => {
+      try {
+        const res = await fetch(`${API}/api/scans`);
+        if (res.ok) {
+          document.getElementById('server-status').textContent = '⬤ server online';
+          document.getElementById('server-status').className = 'badge ok';
+        }
+      } catch {
+        document.getElementById('server-status').textContent = '⬤ server offline';
+        document.getElementById('server-status').className = 'badge danger';
+      }
+    };
+
+    function updateDescription() {
+      const type = document.getElementById('scanType').value;
+      document.getElementById('scan-description').textContent = descriptions[type];
+    }
+
+    function fillTarget(ip) {
+      document.getElementById('target').value = ip;
+    }
+
+    const logs = [
+      'Initializing Nmap scanner...',
+      'Resolving target hostname...',
+      'Sending SYN packets to target...',
+      'Probing open ports...',
+      'Detecting service versions...',
+      'Analyzing responses...',
+      'Compiling results...',
+    ];
+
+    async function startScan() {
+      const target = document.getElementById('target').value.trim();
+      if (!target) { alert('Please enter a target IP address.'); return; }
+
+      // Show progress
+      document.getElementById('scan-progress').style.display = 'block';
+      document.getElementById('scan-results').style.display = 'none';
+      document.getElementById('progress-target').textContent = target;
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('progress-percent').textContent = '0%';
+      document.getElementById('progress-log').innerHTML = '';
+      document.getElementById('scanBtn').disabled = true;
+      document.getElementById('scanBtn').textContent = 'Scanning...';
+      document.getElementById('scan-progress').scrollIntoView({ behavior: 'smooth' });
+
+      // Animate log while waiting
+      let step = 0;
+      const logInterval = setInterval(() => {
+        if (step >= logs.length) return;
+        const pct = Math.round((step / logs.length) * 80);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-percent').textContent = pct + '%';
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.textContent = '> ' + logs[step];
+        document.getElementById('progress-log').appendChild(line);
+        step++;
+      }, 800);
+
+      try {
+        // Call real backend
+        const res = await fetch(`${API}/api/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target })
+        });
+
+        clearInterval(logInterval);
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Scan failed');
+        }
+
+        const data = await res.json();
+
+        // Complete progress bar
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('progress-percent').textContent = '100%';
+        const doneLine = document.createElement('div');
+        doneLine.className = 'log-line';
+        doneLine.textContent = `> Scan complete! Found ${data.ports.length} ports.`;
+        document.getElementById('progress-log').appendChild(doneLine);
+
+        // Show results table
+        const tbody = document.getElementById('results-tbody');
+        tbody.innerHTML = '';
+
+        if (data.ports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;padding:20px;">No open ports found</td></tr>';
+        } else {
+          data.ports.forEach(p => {
+            const stateClass = p.state === 'open' ? 'danger' : p.state === 'filtered' ? 'warn' : 'ok';
+            tbody.innerHTML += `
+              <tr>
+                <td><span class="port-num">${p.port}</span></td>
+                <td class="muted">${p.protocol}</td>
+                <td><span class="badge ${stateClass}">${p.state}</span></td>
+                <td>${p.service}</td>
+                <td class="muted">${p.version}</td>
+              </tr>`;
+          });
+        }
+
+        document.getElementById('scan-results').style.display = 'block';
+
+      } catch (err) {
+        clearInterval(logInterval);
+        const errLine = document.createElement('div');
+        errLine.className = 'log-line';
+        errLine.style.color = '#fc8181';
+        errLine.textContent = '> Error: ' + err.message;
+        document.getElementById('progress-log').appendChild(errLine);
+      }
+
+      document.getElementById('scanBtn').disabled = false;
+      document.getElementById('scanBtn').textContent = 'Run Scan →';
+    }
+  </script>
+<script src="auth.js"></script>
+</body>
+</html>

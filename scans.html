@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scans — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html" class="active"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Scans</div>
+      <div class="topbar-right">
+        <a href="new-scan.html" class="topbar-btn primary">+ New Scan</a>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Search by target IP..." onkeyup="filterTable()" />
+        <select id="vulnFilter" onchange="filterTable()">
+          <option value="">All</option>
+          <option value="high">High Vulns (10+)</option>
+          <option value="medium">Medium Vulns (5–9)</option>
+          <option value="low">Low Vulns (0–4)</option>
+        </select>
+        <button class="topbar-btn" onclick="loadScans()">↻ Refresh</button>
+      </div>
+
+      <!-- LIVE SCANS FROM BACKEND -->
+      <section class="section">
+        <div class="section-row">
+          <span class="section-title">All Scans</span>
+          <span id="scan-count" class="muted" style="font-size:12px;"></span>
+        </div>
+        <table class="data-table" id="scansTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Target</th>
+              <th>Scan Date</th>
+              <th>Total Ports</th>
+              <th>Open Ports</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="scansBody">
+            <tr>
+              <td colspan="6" class="muted" style="text-align:center;padding:32px;">
+                Loading scans...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- DEMO SCANS (always visible) -->
+      <section class="section">
+        <div class="section-row">
+          <span class="section-title">Demo Scans</span>
+          <span class="badge info">mock data</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Target</th><th>Scan Date</th><th>Total Ports</th><th>Vulnerabilities</th><th>Action</th></tr>
+          </thead>
+          <tbody id="demoBody">
+            <tr><td class="muted">001</td><td>192.168.1.1</td><td>2025-04-25 10:32</td><td>320</td><td><span class="badge danger">12</span></td><td><a href="ports.html" class="btn-link">View Ports →</a></td></tr>
+            <tr><td class="muted">002</td><td>10.0.0.5</td><td>2025-04-24 14:15</td><td>280</td><td><span class="badge warn">7</span></td><td><a href="ports.html" class="btn-link">View Ports →</a></td></tr>
+            <tr><td class="muted">003</td><td>172.16.0.10</td><td>2025-04-22 09:00</td><td>410</td><td><span class="badge ok">2</span></td><td><a href="ports.html" class="btn-link">View Ports →</a></td></tr>
+            <tr><td class="muted">004</td><td>192.168.0.50</td><td>2025-04-20 16:45</td><td>190</td><td><span class="badge danger">15</span></td><td><a href="ports.html" class="btn-link">View Ports →</a></td></tr>
+            <tr><td class="muted">005</td><td>10.10.10.1</td><td>2025-04-18 11:20</td><td>500</td><td><span class="badge ok">1</span></td><td><a href="ports.html" class="btn-link">View Ports →</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    async function loadScans() {
+      try {
+        const res = await fetch(`${API}/api/scans`);
+        const scans = await res.json();
+        const tbody = document.getElementById('scansBody');
+        document.getElementById('scan-count').textContent = `${scans.length} real scans`;
+
+        if (scans.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;padding:32px;">No real scans yet — run one from New Scan page!</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = scans.map((s, i) => {
+          const date = new Date(s.scan_date).toLocaleString();
+          const openPorts = s.ports ? s.ports.filter(p => p.state === 'open').length : 0;
+          const badgeClass = openPorts >= 10 ? 'danger' : openPorts >= 5 ? 'warn' : 'ok';
+          return `
+            <tr>
+              <td class="muted">${String(i+1).padStart(3,'0')}</td>
+              <td><strong>${s.target}</strong></td>
+              <td class="muted">${date}</td>
+              <td>${s.total_ports}</td>
+              <td><span class="badge ${badgeClass}">${openPorts}</span></td>
+              <td>
+                <button class="icon-btn" onclick="viewScan(${s.id})">View Ports →</button>
+                <button class="icon-btn" onclick="deleteScan(${s.id})" style="color:#fc8181;border-color:#2d1b1b;">Delete</button>
+              </td>
+            </tr>`;
+        }).join('');
+
+      } catch {
+        document.getElementById('scansBody').innerHTML =
+          '<tr><td colspan="6" class="muted" style="text-align:center;padding:32px;">⚠ Server offline — start node server.js</td></tr>';
+      }
+    }
+
+    function viewScan(id) {
+      localStorage.setItem('viewScanId', id);
+      window.location.href = 'ports.html';
+    }
+
+    async function deleteScan(id) {
+      if (!confirm('Delete this scan?')) return;
+      await fetch(`${API}/api/scans/${id}`, { method: 'DELETE' });
+      loadScans();
+    }
+
+    function filterTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filter = document.getElementById('vulnFilter').value;
+      document.querySelectorAll('#scansBody tr').forEach(row => {
+        if (row.cells.length < 4) return;
+        const target = row.cells[1].textContent.toLowerCase();
+        const ports  = parseInt(row.cells[4].textContent);
+        const matchSearch = target.includes(search);
+        let matchFilter = true;
+        if (filter === 'high')   matchFilter = ports >= 10;
+        if (filter === 'medium') matchFilter = ports >= 5 && ports <= 9;
+        if (filter === 'low')    matchFilter = ports <= 4;
+        row.style.display = (matchSearch && matchFilter) ? '' : 'none';
+      });
+    }
+
+    loadScans();
+  </script>
+<script src="auth.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

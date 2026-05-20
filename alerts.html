@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alerts — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html" class="active"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Alerts</div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="clearAll()">Clear All</button>
+        <a href="new-scan.html" class="topbar-btn primary">+ New Scan</a>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- SUMMARY -->
+      <div class="metrics-grid" style="margin-bottom:28px;">
+        <div class="metric-card">
+          <div class="metric-label">Total Alerts</div>
+          <div class="metric-value">8</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Critical</div>
+          <div class="metric-value danger">3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Warnings</div>
+          <div class="metric-value warn">3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Info</div>
+          <div class="metric-value info">2</div>
+        </div>
+      </div>
+
+      <!-- FILTER -->
+      <div class="filter-bar" style="margin-bottom:20px;">
+        <select id="alertFilter" onchange="filterAlerts()">
+          <option value="">All Alerts</option>
+          <option value="critical">Critical</option>
+          <option value="warning">Warning</option>
+          <option value="info">Info</option>
+        </select>
+        <select id="readFilter" onchange="filterAlerts()">
+          <option value="">All</option>
+          <option value="unread">Unread</option>
+          <option value="read">Read</option>
+        </select>
+      </div>
+
+      <!-- ALERTS LIST -->
+      <div id="alerts-list">
+
+        <div class="alert-item" data-type="critical" data-read="unread">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Critical: MySQL exposed on port 3306</div>
+            <div class="alert-desc">Target 10.0.0.5 has MySQL database port open to the network. This is a high-risk exposure that could allow unauthorized database access.</div>
+            <div class="alert-time">2 minutes ago — 10.0.0.5</div>
+          </div>
+          <span class="badge danger">critical</span>
+        </div>
+
+        <div class="alert-item" data-type="critical" data-read="unread">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Critical: Log4Shell CVE-2021-44228 detected</div>
+            <div class="alert-desc">Apache Log4j2 vulnerability found on port 8080 (Tomcat). CVSS score 10.0 — immediate patching required.</div>
+            <div class="alert-time">15 minutes ago — 172.16.0.10</div>
+          </div>
+          <span class="badge danger">critical</span>
+        </div>
+
+        <div class="alert-item" data-type="critical" data-read="unread">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Critical: Apache RCE CVE-2021-41773 detected</div>
+            <div class="alert-desc">Path traversal and remote code execution vulnerability in Apache 2.4.49 on port 80. Attacker can execute arbitrary commands.</div>
+            <div class="alert-time">1 hour ago — 192.168.1.1</div>
+          </div>
+          <span class="badge danger">critical</span>
+        </div>
+
+        <div class="alert-item" data-type="warning" data-read="unread">
+          <div class="alert-icon">🟡</div>
+          <div class="alert-content">
+            <div class="alert-title">Warning: SSH running old version OpenSSH 7.9</div>
+            <div class="alert-desc">OpenSSH 7.9 has known username enumeration vulnerability CVE-2018-15473. Consider upgrading to latest version.</div>
+            <div class="alert-time">2 hours ago — 10.0.0.5</div>
+          </div>
+          <span class="badge warn">warning</span>
+        </div>
+
+        <div class="alert-item" data-type="warning" data-read="read">
+          <div class="alert-icon">🟡</div>
+          <div class="alert-content">
+            <div class="alert-title">Warning: FTP port 21 filtered but active</div>
+            <div class="alert-desc">FTP service detected on 172.16.0.10. FTP transmits credentials in plaintext — consider replacing with SFTP.</div>
+            <div class="alert-time">3 hours ago — 172.16.0.10</div>
+          </div>
+          <span class="badge warn">warning</span>
+        </div>
+
+        <div class="alert-item" data-type="warning" data-read="read">
+          <div class="alert-icon">🟡</div>
+          <div class="alert-content">
+            <div class="alert-title">Warning: 15 vulnerabilities on 192.168.0.50</div>
+            <div class="alert-desc">Latest scan found 15 open vulnerabilities on this target. This is the highest count across all monitored hosts.</div>
+            <div class="alert-time">5 hours ago — 192.168.0.50</div>
+          </div>
+          <span class="badge warn">warning</span>
+        </div>
+
+        <div class="alert-item" data-type="info" data-read="read">
+          <div class="alert-icon">🔵</div>
+          <div class="alert-content">
+            <div class="alert-title">Info: New scan completed on 10.232.221.84</div>
+            <div class="alert-desc">Scan completed successfully. Found 2 open ports: 445 (microsoft-ds) and 5500 (hotline).</div>
+            <div class="alert-time">Today at 11:24 AM — 10.232.221.84</div>
+          </div>
+          <span class="badge info">info</span>
+        </div>
+
+        <div class="alert-item" data-type="info" data-read="read">
+          <div class="alert-icon">🔵</div>
+          <div class="alert-content">
+            <div class="alert-title">Info: Scheduled scan completed for 10.10.10.1</div>
+            <div class="alert-desc">Routine scan found only 1 open port. Host appears secure with minimal attack surface.</div>
+            <div class="alert-time">Yesterday — 10.10.10.1</div>
+          </div>
+          <span class="badge info">info</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function filterAlerts() {
+      const type = document.getElementById('alertFilter').value;
+      const read = document.getElementById('readFilter').value;
+      document.querySelectorAll('.alert-item').forEach(item => {
+        const matchType = type === '' || item.dataset.type === type;
+        const matchRead = read === '' || item.dataset.read === read;
+        item.style.display = (matchType && matchRead) ? 'flex' : 'none';
+      });
+    }
+
+    function clearAll() {
+      if (confirm('Mark all alerts as read?')) {
+        document.querySelectorAll('.alert-item').forEach(item => {
+          item.dataset.read = 'read';
+          item.style.opacity = '0.5';
+        });
+      }
+    }
+  </script>
+<script src="auth.js"></script>
+</body>
+</html>

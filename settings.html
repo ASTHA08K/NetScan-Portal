@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html" class="active"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Settings</div>
+      <div class="topbar-right">
+        <button class="topbar-btn primary" onclick="saveSettings()">Save Changes</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="settings-grid">
+
+        <!-- LEFT NAV -->
+        <div class="settings-nav">
+          <a href="#general" class="active" onclick="switchTab('general', this)">General</a>
+          <a href="#scanner" onclick="switchTab('scanner', this)">Scanner</a>
+          <a href="#notifications" onclick="switchTab('notifications', this)">Notifications</a>
+          <a href="#account" onclick="switchTab('account', this)">Account</a>
+          <a href="#database" onclick="switchTab('database', this)">Database</a>
+          <a href="#about" onclick="switchTab('about', this)">About</a>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="settings-card">
+
+          <!-- GENERAL -->
+          <div id="tab-general">
+            <div class="settings-section-title">General Settings</div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Portal Name</div>
+                <div class="setting-desc">Display name shown in the browser tab</div>
+              </div>
+              <input type="text" class="form-input" value="NetScan Portal" style="width:200px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Dark Mode</div>
+                <div class="setting-desc">Toggle between dark and light theme</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Auto Refresh Dashboard</div>
+                <div class="setting-desc">Automatically refresh dashboard every 60 seconds</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Refresh Interval</div>
+                <div class="setting-desc">How often to auto-refresh (seconds)</div>
+              </div>
+              <select class="form-input" style="width:120px;">
+                <option>30s</option>
+                <option selected>60s</option>
+                <option>120s</option>
+                <option>300s</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Demo Mode</div>
+                <div class="setting-desc">Show mock data alongside real scan results</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SCANNER -->
+          <div id="tab-scanner" style="display:none;">
+            <div class="settings-section-title">Scanner Settings</div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Nmap Path</div>
+                <div class="setting-desc">Path to Nmap executable on your system</div>
+              </div>
+              <input type="text" class="form-input" value="C:\Program Files (x86)\Nmap\nmap.exe" style="width:280px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Default Scan Type</div>
+                <div class="setting-desc">Default scan type for new scans</div>
+              </div>
+              <select class="form-input" style="width:200px;">
+                <option selected>Service Detection (-sV)</option>
+                <option>Fast Scan (-F)</option>
+                <option>Full Scan (-p 1-65535)</option>
+                <option>Vulnerability (-sV -sC)</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Default Speed</div>
+                <div class="setting-desc">Default timing template for scans</div>
+              </div>
+              <select class="form-input" style="width:120px;">
+                <option>Slow (T1)</option>
+                <option selected>Normal (T3)</option>
+                <option>Fast (T4)</option>
+                <option>Aggressive (T5)</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Scan Timeout</div>
+                <div class="setting-desc">Maximum time to wait for a scan (seconds)</div>
+              </div>
+              <input type="number" class="form-input" value="120" style="width:100px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Save Raw Output</div>
+                <div class="setting-desc">Save raw Nmap output with each scan result</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- NOTIFICATIONS -->
+          <div id="tab-notifications" style="display:none;">
+            <div class="settings-section-title">Notification Settings</div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Critical CVE Alerts</div>
+                <div class="setting-desc">Show alert when a critical CVE is detected</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Scan Complete Alerts</div>
+                <div class="setting-desc">Notify when a scan finishes</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">New Open Port Alerts</div>
+                <div class="setting-desc">Alert when a new open port is discovered</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Email Notifications</div>
+                <div class="setting-desc">Send alerts to email address below</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Email Address</div>
+                <div class="setting-desc">Where to send email notifications</div>
+              </div>
+              <input type="email" class="form-input" placeholder="admin@example.com" style="width:220px;" />
+            </div>
+          </div>
+
+          <!-- ACCOUNT -->
+          <div id="tab-account" style="display:none;">
+            <div class="settings-section-title">Account Settings</div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Username</div>
+                <div class="setting-desc">Your login username</div>
+              </div>
+              <input type="text" class="form-input" value="admin" style="width:180px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Current Password</div>
+                <div class="setting-desc">Enter current password to make changes</div>
+              </div>
+              <input type="password" class="form-input" placeholder="••••••••" style="width:180px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">New Password</div>
+                <div class="setting-desc">Leave blank to keep current password</div>
+              </div>
+              <input type="password" class="form-input" placeholder="••••••••" style="width:180px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Session Timeout</div>
+                <div class="setting-desc">Auto logout after inactivity</div>
+              </div>
+              <select class="form-input" style="width:120px;">
+                <option>15 min</option>
+                <option selected>30 min</option>
+                <option>1 hour</option>
+                <option>Never</option>
+              </select>
+            </div>
+
+            <div style="margin-top:24px;">
+              <button class="submit-btn" style="max-width:180px;background:#2d1b1b;color:#fc8181;border:1px solid #fc8181;" onclick="if(confirm('Log out?')) window.location.href='login.html'">
+                Logout →
+              </button>
+            </div>
+          </div>
+
+          <!-- DATABASE -->
+          <div id="tab-database" style="display:none;">
+            <div class="settings-section-title">Database Settings</div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Mode</div>
+                <div class="setting-desc">Currently using in-memory storage</div>
+              </div>
+              <select class="form-input" style="width:180px;">
+                <option selected>In-Memory (demo)</option>
+                <option>PostgreSQL</option>
+                <option>MySQL</option>
+                <option>SQLite</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Host</div>
+                <div class="setting-desc">Database server hostname</div>
+              </div>
+              <input type="text" class="form-input" placeholder="localhost" style="width:200px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Port</div>
+                <div class="setting-desc">Database port number</div>
+              </div>
+              <input type="text" class="form-input" placeholder="5432" style="width:100px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Database Name</div>
+                <div class="setting-desc">Name of the database to connect to</div>
+              </div>
+              <input type="text" class="form-input" placeholder="netscan_db" style="width:200px;" />
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">Username</div>
+                <div class="setting-desc">Database login username</div>
+              </div>
+              <input type="text" class="form-input" placeholder="postgres" style="width:200px;" />
+            </div>
+
+            <div style="margin-top:24px;">
+              <button class="submit-btn" style="max-width:180px;" onclick="testDB()">Test Connection</button>
+            </div>
+          </div>
+
+          <!-- ABOUT -->
+          <div id="tab-about" style="display:none;">
+            <div class="settings-section-title">About NetScan Portal</div>
+
+            <div class="setting-row">
+              <div class="setting-label">Version</div>
+              <span class="badge info">v2.0.0</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Built With</div>
+              <span class="muted" style="font-size:13px;">HTML · CSS · JavaScript · Node.js · Nmap</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Backend</div>
+              <span class="badge ok" id="server-status-about">checking...</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Nmap</div>
+              <span class="badge ok">v7.97 installed</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Node.js</div>
+              <span class="badge ok">v24.15.0</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-label">Developer</div>
+              <span class="muted" style="font-size:13px;">Built step by step 🚀</span>
+            </div>
+
+            <div style="margin-top:24px;padding:16px;background:#0a0e1a;border-radius:8px;border:1px solid #1e2535;">
+              <div style="font-size:12px;color:#4a5568;font-family:'JetBrains Mono',monospace;line-height:2;">
+                // NetScan Portal v2.0.0<br>
+                // Real network scanner built from scratch<br>
+                // Stack: HTML + CSS + JS + Node.js + Nmap<br>
+                // Pages: 9 | Backend: Express.js<br>
+                // Status: 🟢 All systems operational
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    function switchTab(tab, el) {
+      // Hide all tabs
+      ['general','scanner','notifications','account','database','about'].forEach(t => {
+        document.getElementById('tab-' + t).style.display = 'none';
+      });
+      // Show selected
+      document.getElementById('tab-' + tab).style.display = 'block';
+      // Update nav
+      document.querySelectorAll('.settings-nav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function saveSettings() {
+      const btn = document.querySelector('.topbar-btn.primary');
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = '✓ Saved!';
+        setTimeout(() => {
+          btn.textContent = 'Save Changes';
+          btn.disabled = false;
+        }, 2000);
+      }, 800);
+    }
+
+    function testDB() {
+      const btn = event.target;
+      btn.textContent = 'Testing...';
+      btn.disabled = true;
+      setTimeout(() => {
+        alert('⚠ No database configured yet.\nChange Mode to PostgreSQL and fill in the details to connect a real database!');
+        btn.textContent = 'Test Connection';
+        btn.disabled = false;
+      }, 1000);
+    }
+
+    // Check server status
+    window.onload = async () => {
+      try {
+        const res = await fetch(`${API}/api/scans`);
+        if (res.ok) {
+          document.getElementById('server-status-about').textContent = 'online ✓';
+        }
+      } catch {
+        document.getElementById('server-status-about').textContent = 'offline ✗';
+        document.getElementById('server-status-about').className = 'badge danger';
+      }
+    };
+  </script>
+<script src="auth.js"></script>
+</body>
+</html>

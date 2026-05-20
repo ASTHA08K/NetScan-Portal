@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ports — NetScan Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">// <span>NetScan</span></div>
+    <div class="sidebar-section">Main</div>
+    <a href="index.html"><span class="sidebar-icon">⬡</span> Dashboard</a>
+    <a href="scans.html"><span class="sidebar-icon">◈</span> Scans</a>
+    <a href="ports.html" class="active"><span class="sidebar-icon">◎</span> Ports</a>
+    <a href="cves.html"><span class="sidebar-icon">⚠</span> CVE Findings <span class="sidebar-badge">17</span></a>
+    <div class="sidebar-section">Tools</div>
+    <a href="new-scan.html"><span class="sidebar-icon">+</span> New Scan</a>
+    <a href="alerts.html"><span class="sidebar-icon">◉</span> Alerts <span class="sidebar-badge">3</span></a>
+    <a href="reports.html"><span class="sidebar-icon">≡</span> Reports</a>
+    <div class="sidebar-section">System</div>
+    <a href="settings.html"><span class="sidebar-icon">⚙</span> Settings</a>
+    <a href="#" onclick="AUTH.logout()"><span class="sidebar-icon">←</span> Logout</a>
+    <div class="sidebar-footer">
+      <div class="user">admin@netscan</div>
+      <div>v2.0.0 — live mode</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Port Results</div>
+      <div class="topbar-right">
+        <a href="new-scan.html" class="topbar-btn primary">+ New Scan</a>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Search by service name..." onkeyup="filterTable()" />
+        <select id="stateFilter" onchange="filterTable()">
+          <option value="">All States</option>
+          <option value="open">Open</option>
+          <option value="closed">Closed</option>
+          <option value="filtered">Filtered</option>
+        </select>
+        <select id="scanFilter" onchange="filterTable()">
+          <option value="">All Targets</option>
+          <option value="192.168.1.1">192.168.1.1</option>
+          <option value="10.0.0.5">10.0.0.5</option>
+          <option value="172.16.0.10">172.16.0.10</option>
+          <option value="10.232.221.84">10.232.221.84</option>
+        </select>
+      </div>
+
+      <!-- LIVE PORTS FROM REAL SCAN -->
+      <section class="section" id="live-section" style="display:none;">
+        <div class="section-row">
+          <span class="section-title">Live Scan Results</span>
+          <span class="badge ok">real data</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Port</th><th>Protocol</th><th>State</th><th>Service</th><th>Version</th></tr>
+          </thead>
+          <tbody id="live-tbody"></tbody>
+        </table>
+      </section>
+
+      <!-- DEMO PORTS -->
+      <section class="section">
+        <div class="section-row">
+          <span class="section-title">Demo Port Results</span>
+          <span class="badge info">mock data</span>
+        </div>
+        <table class="data-table" id="portsTable">
+          <thead>
+            <tr><th>Port</th><th>Service</th><th>Version</th><th>State</th><th>Target</th><th>CVEs</th></tr>
+          </thead>
+          <tbody id="portsBody">
+            <tr><td><span class="port-num">80</span></td><td>HTTP</td><td class="muted">Apache 2.4.51</td><td><span class="badge danger">open</span></td><td class="muted">192.168.1.1</td><td><a href="cves.html" class="btn-link">3 CVEs →</a></td></tr>
+            <tr><td><span class="port-num">443</span></td><td>HTTPS</td><td class="muted">nginx 1.18.0</td><td><span class="badge danger">open</span></td><td class="muted">192.168.1.1</td><td><a href="cves.html" class="btn-link">1 CVE →</a></td></tr>
+            <tr><td><span class="port-num">22</span></td><td>SSH</td><td class="muted">OpenSSH 7.9</td><td><span class="badge danger">open</span></td><td class="muted">10.0.0.5</td><td><a href="cves.html" class="btn-link">2 CVEs →</a></td></tr>
+            <tr><td><span class="port-num">3306</span></td><td>MySQL</td><td class="muted">MySQL 5.7.38</td><td><span class="badge danger">open</span></td><td class="muted">10.0.0.5</td><td><a href="cves.html" class="btn-link">5 CVEs →</a></td></tr>
+            <tr><td><span class="port-num">21</span></td><td>FTP</td><td class="muted">vsftpd 3.0.3</td><td><span class="badge warn">filtered</span></td><td class="muted">172.16.0.10</td><td><span class="muted">0 CVEs</span></td></tr>
+            <tr><td><span class="port-num">8080</span></td><td>HTTP-Alt</td><td class="muted">Tomcat 9.0.56</td><td><span class="badge danger">open</span></td><td class="muted">172.16.0.10</td><td><a href="cves.html" class="btn-link">4 CVEs →</a></td></tr>
+            <tr><td><span class="port-num">25</span></td><td>SMTP</td><td class="muted">Postfix 3.5.6</td><td><span class="badge ok">closed</span></td><td class="muted">192.168.1.1</td><td><span class="muted">0 CVEs</span></td></tr>
+            <tr><td><span class="port-num">53</span></td><td>DNS</td><td class="muted">BIND 9.11.5</td><td><span class="badge danger">open</span></td><td class="muted">10.0.0.5</td><td><a href="cves.html" class="btn-link">2 CVEs →</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    async function loadLiveScan() {
+      const scanId = localStorage.getItem('viewScanId');
+      if (!scanId) return;
+      try {
+        const res = await fetch(`${API}/api/scans/${scanId}`);
+        const scan = await res.json();
+        if (!scan || !scan.ports) return;
+        document.getElementById('live-section').style.display = 'block';
+        const tbody = document.getElementById('live-tbody');
+        tbody.innerHTML = scan.ports.map(p => {
+          const stateClass = p.state === 'open' ? 'danger' : p.state === 'filtered' ? 'warn' : 'ok';
+          return `<tr>
+            <td><span class="port-num">${p.port}</span></td>
+            <td class="muted">${p.protocol}</td>
+            <td><span class="badge ${stateClass}">${p.state}</span></td>
+            <td>${p.service}</td>
+            <td class="muted">${p.version}</td>
+          </tr>`;
+        }).join('');
+        localStorage.removeItem('viewScanId');
+      } catch { }
+    }
+
+    function filterTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const state  = document.getElementById('stateFilter').value.toLowerCase();
+      const scan   = document.getElementById('scanFilter').value.toLowerCase();
+      document.querySelectorAll('#portsBody tr').forEach(row => {
+        const service   = row.cells[1].textContent.toLowerCase();
+        const rowState  = row.cells[3].textContent.toLowerCase();
+        const rowTarget = row.cells[4].textContent.toLowerCase();
+        const matchSearch = service.includes(search);
+        const matchState  = state === '' || rowState.includes(state);
+        const matchScan   = scan  === '' || rowTarget.includes(scan);
+        row.style.display = (matchSearch && matchState && matchScan) ? '' : 'none';
+      });
+    }
+
+    loadLiveScan();
+  </script>
+
+  <script src="auth.js"></script>
+</body>
+</html>
